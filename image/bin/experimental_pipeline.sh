@@ -75,7 +75,7 @@ clumpify.sh \
 	pigz=t \
 	ordered
 
-CMD="spades.py -k25,55,95,125 --phred-offset 33 -o ${OUTPUT_CONTIGS}"
+CMD="spades.py --only-assembler -k25,55,95,125 --phred-offset 33 -o ${OUTPUT_CONTIGS}"
 
 # Check if there are any unmerged reads
 if [ -s ${OUTPUT_UNMERGED}  ]
