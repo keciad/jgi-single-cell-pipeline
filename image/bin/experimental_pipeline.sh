@@ -1,13 +1,16 @@
 #!/bin/bash
 
 set -o errexit
-set -o pipefile
-
-INPUT=$1
-OUTPUT_CONTIGS=$2
+set -o pipefail
 
 OUTPUT_MERGED=$(mktemp -d)/merged.fq.gz
 OUTPUT_UNMERGED=$(mktemp -d)/unmerged.fq.gz
+
+TMP_OUT=$(mktemp -d)
+
+INPUT=$1
+OUTPUT=$2
+
 
 clumpify.sh \
 	in=${INPUT} \
@@ -75,7 +78,7 @@ clumpify.sh \
 	pigz=t \
 	ordered
 
-CMD="spades.py --only-assembler -k25,55,95,125 --phred-offset 33 -o ${OUTPUT_CONTIGS}"
+CMD="spades.py --only-assembler -k25,55,95,125 --phred-offset 33 -o ${TMP_OUT}"
 
 # Check if there are any unmerged reads
 if [ -s ${OUTPUT_UNMERGED}  ]
@@ -91,4 +94,5 @@ fi
 
 eval ${CMD}
 
-rm -f ${OUTPUT_MERGED} ${OUTPUT_UNMERGED}
+cp ${TMP_OUT}/contigs.fasta ${OUTPUT}
+rm -f ${OUTPUT_MERGED} ${OUTPUT_UNMERGED} ${TMP_OUT}

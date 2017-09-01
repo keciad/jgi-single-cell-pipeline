@@ -2,12 +2,16 @@
 
 set -o errexit
 set -o pipefail
+set -o xtrace
+
+SEQ_FILES=/usr/local/bbmap/resources
+
+FILTERED_READS=$(mktemp -d)/reads.fq.gz
+TMP_OUT=$(mktemp -d)
+
 
 INPUT=$1
 OUTPUT=$2
-FILTERED_READS=$(mktemp -d)/reads.fq.gz
-
-PIPE="in=stdin.fq out=stout.fq"
 
 clumpify.sh \
 	unpigz=t \
@@ -34,26 +38,9 @@ clumpify.sh \
 	ow=true \
 	rqc=hashmap \
 	loglog \
-	ref=adapters2.fa \
-	${PIPE} \
-| bbduk.sh \
-	maq=5,0 \
-	trimq=10 \
-	qtrim=f \
-	ordered \
-	maxns=1 \
-	minlen=51 \
-	minlenfraction=0.33 \
-	k=25 \
-	hdist=1 \
-	zl=6 \
-	cf=t \
-	barcodefilter=crash \
-	ow=true \
-	rqc=hashmap \
-	loglog \
-	ref=pJET1.2.fasta \
-	${PIPE} \
+	ref=${SEQ_FILES}/adapters.fa \
+	in1=stdin.fq \
+	out1=stdout.fq \
 | bbduk.sh \
 	ordered \
 	overwrite=true \
@@ -62,15 +49,17 @@ clumpify.sh \
 	pigz=t \
 	zl=6 \
 	ow=true \
-	ref=short.fa \
+	ref=${SEQ_FILES}/short.fa \
+	in1=stdin.fq \
 	out1=${FILTERED_READS}
 
 spades.py \
-	-o ${OUTPUT} \
+	-o ${TMP_OUT} \
 	--phred-offset 33 \
 	--cov-cutoff auto \
 	--careful \
 	-k 25,55,95 \
 	--12 ${FILTERED_READS}
 
-rm -f ${FILTERED_READS}
+cp ${TMP_OUT}/contigs.fasta ${OUTPUT}
+rm -rf ${FILTERED_READS} ${TMP_OUT}
