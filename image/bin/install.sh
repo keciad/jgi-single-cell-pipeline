@@ -4,7 +4,7 @@ set -o errexit
 set -o nounset
 set -o xtrace
 
-NON_ESSENTIAL_BUILD="ca-certificates wget"
+NON_ESSENTIAL_BUILD="ca-certificates wget openjdk-7-jre-headless"
 SPADES="python-minimal python-setuptools"
 BBTOOLS="openjdk-7-jre-headless pigz"
 
