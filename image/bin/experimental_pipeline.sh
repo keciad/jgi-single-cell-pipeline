@@ -16,14 +16,20 @@ export TMP_OUT=$(mktemp -d)
 INPUT=$1
 OUTPUT=$2
 
+# Clumpify reads the entire file so using stdin/stdout is not recommended
 clumpify.sh \
 	in=${INPUT} \
-        out=stdout.fq \
+        out=${TMP_READS_1} \
+	interleaved=t \
 	unpigz=t \
+	pigz=t \
 	dedupe \
-	optical \
-| bbduk.sh \
-	${PIPE} \
+	optical
+
+bbduk.sh \
+	in=${TMP_READS_1} \
+	out=stdout.fq \
+	interleaved=t \
 	ktrim=r \
 	k=23 \
 	mink=11 \
@@ -36,26 +42,36 @@ clumpify.sh \
 	ordered \
 | bbduk.sh  \
 	${PIPE} \
+	interleaved=t \
 	k=31 \
 	ref=artifacts,phix \
 	ordered \
 	cardinality \
 | bbmerge.sh \
-	${PIPE} \
+	out=${TMP_READS_2} \
+	interleaved=t \
+	in=stdin.fq \
 	ecco \
 	mix \
 	vstrict \
-	ordered \
-| clumpify.sh \
-	${PIPE} \
+	ordered
+
+rm ${TMP_READS_1}
+
+# Clumpify reads the entire file so using stdin/stdout is not recommended
+clumpify.sh \
+	interleaved=t \
 	ecc \
 	passes=4 \
 	reorder \
-	in=stdin.fq \
+	in=${TMP_READS_2} \
 	out=${TMP_READS_1}
 
-# Bug in later bbmap tools doesn't accept reads from stdin.fq
+rm ${TMP_READS_2}
+
+# Error correction requires reading through the file twice and so cannot use STDIN
 tadpole.sh \
+	interleaved=t \
 	ecc \
 	k=62 \
 	ordered \
@@ -64,10 +80,10 @@ tadpole.sh \
 	in=${TMP_READS_1}
 
 bbmerge-auto.sh \
+	interleaved=t \
 	in=${TMP_READS_2} \
 	out=${OUTPUT_MERGED} \
 	outu=${TMP_READS_1} \
-	overwrite=t \
 	pigz=t \
 	strict \
 	k=93 \
@@ -76,6 +92,7 @@ bbmerge-auto.sh \
 	ordered
 
 bbduk.sh \
+	interleaved=t \
 	in=${TMP_READS_1} \
 	out=${OUTPUT_UNMERGED} \
 	qtrim=r \
