@@ -7,20 +7,24 @@ set -o xtrace
 SEQ_FILES=/usr/local/bbmap/resources
 
 FILTERED_READS=$(mktemp -d)/reads.fq.gz
+TMP_READS_1=$(mktemp -d)/reads.fq.gz
 TMP_OUT=$(mktemp -d)
-
 
 INPUT=$1
 OUTPUT=$2
 
 clumpify.sh \
+	interleaved=t \
+	pigz=t \
 	unpigz=t \
 	zl=4 \
 	passes=1 \
 	reorder \
 	in1=${INPUT} \
-	out1=stdout.fq \
-| bbduk.sh \
+	out1=${TMP_READS_1}
+
+bbduk.sh \
+	interleaved=t \
 	ktrim=r \
 	ordered \
 	minlen=51 \
@@ -39,9 +43,10 @@ clumpify.sh \
 	rqc=hashmap \
 	loglog \
 	ref=${SEQ_FILES}/adapters.fa \
-	in1=stdin.fq \
+	in1=${TMP_READS_1} \
 	out1=stdout.fq \
 | bbduk.sh \
+	interleaved=t \
 	ordered \
 	overwrite=true \
 	k=20 \
@@ -62,4 +67,4 @@ spades.py \
 	--12 ${FILTERED_READS}
 
 cp ${TMP_OUT}/contigs.fasta ${OUTPUT}
-rm -rf ${FILTERED_READS} ${TMP_OUT}
+rm -rf ${FILTERED_READS} ${TMP_OUT} ${TMP_READS_1}
