@@ -8,6 +8,7 @@ SEQ_FILES=/usr/local/bbmap/resources
 
 FILTERED_READS=$(mktemp -d)/reads.fq.gz
 TMP_READS_1=$(mktemp -d)/reads.fq.gz
+TMP_READS_2=$(mktemp -d)/reads.fq.gz
 TMP_OUT=$(mktemp -d)
 
 INPUT=$1
@@ -56,6 +57,14 @@ bbduk.sh \
 	ow=true \
 	ref=${SEQ_FILES}/short.fa \
 	in1=stdin.fq \
+	out1=${TMP_READS_2}
+
+reformat.sh \
+	interleaved=t \
+	samplereadstarget=5000000 \
+	pigz=t \
+	unpigz=t \
+	in1=${TMP_READS_2} \
 	out1=${FILTERED_READS}
 
 spades.py \
@@ -66,5 +75,10 @@ spades.py \
 	-k 25,55,95 \
 	--12 ${FILTERED_READS}
 
-cp ${TMP_OUT}/contigs.fasta ${OUTPUT}
-rm -rf ${FILTERED_READS} ${TMP_OUT} ${TMP_READS_1}
+reformat.sh \
+	in=${TMP_OUT}/contigs.fasta \
+	out=${OUTPUT} \
+	minlength=1000
+
+
+rm -rf ${FILTERED_READS} ${TMP_OUT} ${TMP_READS_1} ${TMP_READS_2}
