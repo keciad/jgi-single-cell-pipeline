@@ -69,6 +69,7 @@ reformat.sh \
 
 spades.py \
 	-o ${TMP_OUT} \
+	--threads $(nproc) \
 	--phred-offset 33 \
 	--cov-cutoff auto \
 	--careful \
