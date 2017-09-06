@@ -1,0 +1,2 @@
+default: production_pipeline.sh ${READS} ${CONTIGS}
+experimental: experimental_pipeline.sh ${READS} ${CONTIGS}
