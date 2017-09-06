@@ -1,10 +1,10 @@
 ## JGI isolate assembly pipeline
 
-This is based on a modifed version of the JGI microbial isolate pipeline,
+This is based on a modified version of the JGI microbial isolate pipeline,
 removing the steps related to collecting metrics and evaluating the generated
-assembly. The pipeline was developed by Brian Bushnell at the JGI and is based
-around extensive preprocessing then assembly of overlapping 2x150bp reads from
-Illumina HiSeq 2500.
+assembly. The pipeline was developed at the JGI and is based around
+preprocessing then assembly of overlapping 2x150bp reads from Illumina HiSeq
+2500.
 
   * Normalisation is not included in the pipeline as it not recommended for
     isolate data, though it may be beneficial for metagenome, single cell or
