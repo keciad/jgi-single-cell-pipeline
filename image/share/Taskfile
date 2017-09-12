@@ -1,2 +1,3 @@
 default: production_pipeline.sh ${READS} ${CONTIGS}
+merge: production_pipeline_merged_reads.sh ${READS} ${CONTIGS}
 experimental: experimental_pipeline.sh ${READS} ${CONTIGS}
