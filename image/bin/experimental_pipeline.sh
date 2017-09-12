@@ -103,8 +103,8 @@ bbduk.sh \
 
 # Check which files contain reads
 ARGS=()
-[[ ! -s ${OUTPUT_UNMERGED} ]] || ARGS+=(" --12 ${OUTPUT_UNMERGED}")
-[[ ! -s ${OUTPUT_MERGED} ]] || ARGS+=(" -s ${OUTPUT_MERGED}")
+[[ ! -s ${OUTPUT_UNMERGED} ]] || ARGS+=(" --pe1-12 ${OUTPUT_UNMERGED}")
+[[ ! -s ${OUTPUT_MERGED} ]] || ARGS+=(" --s2 ${OUTPUT_MERGED}")
 
 
 spades.py \
