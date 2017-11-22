@@ -1,5 +1,5 @@
 env    = PATH=./env/bin:${PATH}
-image  = biobox_testing/jgi-isolate-pipeline
+image  = biobox_testing/jgi-single-cell-pipeline
 
 ssh: .image env
 	docker run  \
@@ -11,8 +11,6 @@ ssh: .image env
 
 test: .image env
 	$(env) biobox verify short_read_assembler $(image) --verbose
-	$(env) biobox verify short_read_assembler $(image) --verbose --task=merge
-	$(env) biobox verify short_read_assembler $(image) --verbose --task=experimental
 
 build: .image
 

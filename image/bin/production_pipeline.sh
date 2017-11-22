@@ -6,7 +6,6 @@ set -o xtrace
 
 SEQ_FILES=/usr/local/bbmap/resources
 
-FILTERED_READS=$(mktemp -d)/reads.fq.gz
 TMP_READS_1=$(mktemp -d)/reads.fq.gz
 TMP_READS_2=$(mktemp -d)/reads.fq.gz
 TMP_OUT=$(mktemp -d)
@@ -59,27 +58,54 @@ bbduk.sh \
 	in1=stdin.fq \
 	out1=${TMP_READS_2}
 
-reformat.sh \
-	interleaved=t \
-	samplereadstarget=5000000 \
-	pigz=t \
-	unpigz=t \
-	in1=${TMP_READS_2} \
-	out1=${FILTERED_READS}
+# normalize filtered fastq
+bbnorm.sh \
+	bits=32 \
+	min=2 \
+	target=100 \
+	pigz \
+	unpigz \
+	ow=t \
+	in=${TMP_READS_2} \
+	out=${TMP_READS_1}
 
-spades.py \
-	-o ${TMP_OUT} \
+
+# subsample to 20m unpaired reads
+reformat.sh \
+	samplereadstarget=10000000 \
+	ow=t \
+	in=${TMP_READS_1} \
+	out=${TMP_READS_2}
+
+
+$ spades.py \
+	--phred-offset 33  \
 	--threads $(nproc) \
-	--phred-offset 33 \
-	--cov-cutoff auto \
+	--sc \
 	--careful \
-	-k 25,55,95 \
-	--12 ${FILTERED_READS}
+	-k 25,55,95  \
+	--12 ${TMP_READS_2} \
+	-o ${TMP_OUT}
 
-reformat.sh \
+# trim contigs & scaffolds - remove 200 bp at the start and end of each contig
+# drop contig if less than 2000 bp
+bbmap.sh \
+	nodisk \
+	ambig=all \
+	maxindel=100 \
+	minhits=2 \
+	in=${TMP_READS_2} \
+	ref=${TMP_OUT}/contigs.fasta \
+	covstats=${TMP_OUT}/coverage_stats.txt
+
+filterbycoverage.sh \
+	mincov=2 \
+	minr=6 \
+	minp=95 \
+	minl=2000 \
+	trim=200 \
 	in=${TMP_OUT}/contigs.fasta \
 	out=${OUTPUT} \
-	minlength=1000
+	cov=${TMP_OUT}/coverage_stats.txt
 
-
-rm -rf ${FILTERED_READS} ${TMP_OUT} ${TMP_READS_1} ${TMP_READS_2}
+rm -rf ${TMP_OUT} ${TMP_READS_1} ${TMP_READS_2}
