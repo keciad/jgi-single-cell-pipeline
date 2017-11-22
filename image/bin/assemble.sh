@@ -14,7 +14,7 @@ MEM_IN_KB=$(grep MemTotal: /proc/meminfo | tr -s ' ' | cut -f 2 -d ' ')
 USAGE_PERCENT=85
 let HEAP_IN_KB=${MEM_IN_KB}*${USAGE_PERCENT}/100
 
-export _JAVA_OPTIONS="-Xmx${HEAP_IN_KB}k"
+export _JAVA_OPTIONS="-Xmx${HEAP_IN_KB}k -Xms${HEAP_IN_KB}k"
 
 eval ${CMD}
 

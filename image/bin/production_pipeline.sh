@@ -78,7 +78,7 @@ reformat.sh \
 	out=${TMP_READS_2}
 
 
-$ spades.py \
+spades.py \
 	--phred-offset 33  \
 	--threads $(nproc) \
 	--sc \
