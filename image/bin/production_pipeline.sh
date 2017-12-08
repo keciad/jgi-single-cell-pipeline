@@ -60,6 +60,7 @@ bbduk.sh \
 
 # normalize filtered fastq
 bbnorm.sh \
+	cells=${BBNORM_CELLS} \
 	bits=32 \
 	min=2 \
 	target=100 \
