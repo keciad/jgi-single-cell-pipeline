@@ -16,7 +16,7 @@ let HEAP_IN_KB=${MEM_IN_KB}*${USAGE_PERCENT}/100
 export _JAVA_OPTIONS="-Xmx${HEAP_IN_KB}k -Xms${HEAP_IN_KB}k"
 
 # Manually calculate number of cells for normalisation
-BBNORM_CELLS_PER_KB=200
+BBNORM_CELLS_PER_KB=100
 let BBNORM_CELLS=${MEM_IN_KB}*${BBNORM_CELLS_PER_KB}
 export BBNORM_CELLS
 
